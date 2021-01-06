@@ -1,0 +1,57 @@
+{% extends 'views/base/base.nunjucks' %}
+
+{% block title %}请登录{% endblock %}
+
+{% block head %}
+    <script src="/lib/axios/axios.0.21.1.js"></script>
+    <script src="/js/rigidbody-request.0.1.0.js"></script>
+{% endblock %}
+
+{% block body %}
+    <div style="display: flex;flex-direction: column;">
+        <!--  账号  -->
+        <label style="display: flex;flex-direction: row" for="form-account">
+            <span style="width: 80px;">账号</span>
+            <input id="form-account" value="admin" style="width: 360px;"/>
+        </label>
+        <!--  密码  -->
+        <label style="display: flex;flex-direction: row" for="form-password">
+            <span style="width: 80px;">密码</span>
+            <input id="form-password" value="123456" style="width: 360px;"/>
+        </label>
+        <!--  登录按钮  -->
+        <button id="form-login" onclick="onLoginClick()">登录</button>
+    </div>
+
+    <script>
+        function onLoginClick() {
+            let accountElement = document.getElementById('form-account')
+            let passwordElement = document.getElementById('form-password')
+
+            let account = accountElement.value
+            let password = passwordElement.value
+
+            networkPost('/admin/login', {
+                'account' : account,
+                'password' : password,
+            }).then(resp => {
+                console.log(resp)
+                if(200 === resp.data.code){
+                    let account = resp.data.data.account
+                    let token = resp.data.data.token
+                    networkUpdateToken(token)
+                    document.writeln('欢迎你，' + account)
+                    setTimeout(function () {
+                        document.location = '/admin/index'
+                    }, 2000)
+                } else {
+                    alert(resp.data.message)
+                }
+            }).catch(error => {
+                alert('登录请求失败')
+                console.log(error)
+            })
+
+        }
+    </script>
+{% endblock %}
