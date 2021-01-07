@@ -1,0 +1,77 @@
+{% extends 'views/base/base.nunjucks' %}
+
+{% block title %}新建应用{% endblock %}
+
+{% block head %}
+    <script src="/lib/axios/axios.0.21.1.js"></script>
+    <script src="/js/rigidbody-request.0.1.0.js"></script>
+{% endblock %}
+
+{% block body %}
+
+    <div style="display: flex;flex-direction: column;">
+        <!-- 应用名称 -->
+        <label style="display: flex;flex-direction: row" for="form-application-name">
+            <span style="width: 80px;">应用名称</span>
+            <input id="form-application-name" value="admin" style="width: 360px;"/>
+        </label>
+
+        <!-- 应用状态 -->
+        <label style="display: flex;flex-direction: row;margin: 16px 0;" for="form-application-status">
+            <span style="width: 80px;">应用状态</span>
+            <input id="form-application-status-alpha" type="radio" name="form-application-status"/><label for="form-application-status-alpha">内测</label>
+            <input id="form-application-status-beta" type="radio" name="form-application-status"/><label for="form-application-status-beta">公测</label>
+            <input id="form-application-status-release" type="radio" name="form-application-status"/><label for="form-application-status-release">正式</label>
+            <input id="form-application-status-archive" type="radio" name="form-application-status"/><label for="form-application-status-archive">归档</label>
+            <input id="form-application-status-deprecated" type="radio" name="form-application-status"/><label for="form-application-status-deprecated">不再维护</label>
+        </label>
+
+        <!-- 添加按钮 -->
+        <button onclick="onAddClick()">添加</button>
+    </div>
+
+    <script>
+        const APPLICATION_STATUS_ALPHA = 1
+        const APPLICATION_STATUS_BETA = 2
+        const APPLICATION_STATUS_RELEASE = 3
+        const APPLICATION_STATUS_ARCHIVE = 4
+        const APPLICATION_STATUS_DEPRECATED = 5
+
+        function onAddClick() {
+            // 应用名称
+            let applicationName = document.getElementById('form-application-name').value
+            // 应用状态
+            let applicationStatus = APPLICATION_STATUS_RELEASE
+            if(document.getElementById('form-application-status-alpha').checked){
+                applicationStatus = APPLICATION_STATUS_ALPHA
+            } else if(document.getElementById('form-application-status-beta').checked){
+                applicationStatus = APPLICATION_STATUS_BETA
+            } else if(document.getElementById('form-application-status-release').checked){
+                applicationStatus = APPLICATION_STATUS_RELEASE
+            } else if(document.getElementById('form-application-status-archive').checked){
+                applicationStatus = APPLICATION_STATUS_ARCHIVE
+            } else if(document.getElementById('form-application-status-deprecated').checked){
+                applicationStatus = APPLICATION_STATUS_DEPRECATED
+            }
+
+            // 发送网络请求
+            networkPost('/admin/application/add', {
+                'name' : applicationName,
+                'status' : applicationStatus,
+            }).then((response) => {
+                if(response.data.code === 200){
+                    document.writeln('添加应用成功，正在返回首页')
+                    setTimeout(() => {
+                        location.href = '/admin/index'
+                    }, 500)
+                } else {
+                    alert('添加应用失败，' + response.data.message)
+                }
+            }).catch((error) => {
+                alert('添加应用失败，请稍后重试')
+            })
+        }
+
+    </script>
+
+{% endblock %}

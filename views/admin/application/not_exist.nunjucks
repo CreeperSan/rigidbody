@@ -1,0 +1,16 @@
+{% extends 'views/base/base.nunjucks' %}
+
+{% block title %}应用详情{% endblock %}
+
+{% block head %}
+    <script src="/lib/axios/axios.0.21.1.js"></script>
+    <script src="/js/rigidbody-request.0.1.0.js"></script>
+{% endblock %}
+
+{% block body %}
+    <div style="display: flex;flex-direction: column;">
+        <h1 style="color: red;">应用不存在</h1>
+    </div>
+
+
+{% endblock %}

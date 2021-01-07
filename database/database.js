@@ -186,7 +186,17 @@ module.exports = {
                 if(err){
                     reject(_createFailResult('服务器内部错误'))
                 } else {
-                    resolve(_createSuccessResult(result))
+                    let applicationResultList = []
+                    for(let i=0; i<result.length; i++){
+                        let applicationResultItem = {}
+                        let applicationDatabaseItem = result[i]
+                        applicationResultItem.id = applicationDatabaseItem._id
+                        applicationResultItem.name = applicationDatabaseItem.name
+                        applicationResultItem.status = applicationDatabaseItem.status
+                        // TODO 自定义字段尚未支持
+                        applicationResultList.push(applicationResultItem)
+                    }
+                    resolve(_createSuccessResult(applicationResultList))
                 }
             })
         })
@@ -196,13 +206,14 @@ module.exports = {
      * 新增应用
      * @param accountID
      * @param applicationName
+     * @param status
      * @param fields
      */
-    applicationCreate : function (accountID, applicationName, fields) {
+    applicationCreate : function (accountID, applicationName, status, fields) {
         return new Promise(function (resolve, reject) {
-            let sql = 'insert into Application(user_id, name, fields) values (?, ?, ?)'
+            let sql = 'insert into Application(user_id, name, status ,fields) values (?, ?, ?, ?)'
             let sqlitePreparement = database.prepare(sql)
-            sqlitePreparement.run(accountID, applicationName, fields, function (err, result) {
+            sqlitePreparement.run(accountID, applicationName, status, fields, function (err, result) {
                 if(err){
                     reject(_createFailResult('服务器内部错误'))
                 } else {

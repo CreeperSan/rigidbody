@@ -1,0 +1,49 @@
+{% extends 'views/base/base.nunjucks' %}
+
+{% block title %}应用版本信息{% endblock %}
+
+{% block head %}
+    <script src="/lib/axios/axios.0.21.1.js"></script>
+    <script src="/js/rigidbody-request.0.1.0.js"></script>
+{% endblock %}
+
+{% block body %}
+    <div style="display: flex;flex-direction: column;">
+        <h1>应用名称</h1>
+        <div style="display: flex;flex-direction: row;align-items: center;padding: 16px 0;background-color: lightgray;">
+            <h3>已发布的版本列表</h3>
+            <div style="flex: 1;"></div>
+            <a href="javascript:rigidbodyAddVersion()">添加版本</a>
+        </div>
+
+        <div style="display: flex;flex-direction: column;">
+            <div style="display: flex;flex-direction: row;align-items: center">
+                <h4>v10.16.130.465561</h4>
+                <span style="color: gray;margin-left: 16px;"> (10264 ) </span>
+                <div style="flex: 1"></div>
+                <a style="color: red;" href="javascript:rigidbodyDeleteVersion('','')">删除版本</a>
+            </div>
+            <span>发布于 2021-06-19 23:10:51</span>
+            <span>http://www.creepersan.com</span>
+            <div>
+                1. 新增评论功能<br>
+                2. 新增主题换肤<br>
+                3. 修复漏洞<br>
+            </div>
+            <div style="height: 1px;width: 100%;background-color: gray;margin: 16px 0;"></div>
+        </div>
+    </div>
+
+    <script>
+        function rigidbodyAddVersion() {
+            location.href = '/admin/application/version/add'
+        }
+
+        function rigidbodyDeleteVersion(applicationID, versionID) {
+
+        }
+
+    </script>
+
+
+{% endblock %}

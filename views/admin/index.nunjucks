@@ -23,15 +23,19 @@
             <div style="flex: 1"></div>
             <a href="javascript:rigidbodyAddApplication()">新建应用</a>
         </div>
+
+        {% for application in applicationList%}
         <div style="display: flex;flex-direction: column;background-color: #eee;">
             <div style="width: 94%;display: flex;flex-direction: row;align-items: center;margin: 12px 3%;">
-                <span style="font-weight: bold;font-size: 20px;">应用名称</span>
-                <span style="margin-left: 16px;color: #999">迭代中</span>
+                <a href="/admin/application?id={{ application.id }}" style="font-weight: bold;font-size: 20px;">{{ application.name }}</a>
+                <span style="margin-left: 16px;color: #999">（ id = {{ application.id }}）</span>
                 <div style="flex: 1;"></div>
-                <a style="color: red;margin-right: 16px;" href="javascript:rigidbodyDeleteApplication('asdasd')">删除</a>
-                <a href="javascript:rigidbodyEditApplication('asdasd')">编辑</a>
+                <a style="color: red;margin-right: 16px;" href="javascript:rigidbodyDeleteApplication({{ application.id }})">删除</a>
+                <a href="javascript:rigidbodyEditApplication({{ application.id }})">编辑</a>
             </div>
         </div>
+        {% endfor %}
+
     </div>
 
     <script>
@@ -54,15 +58,30 @@
         }
 
         function rigidbodyAddApplication() {
-            console.log('添加应用')
+            location.href = '/admin/application/add'
         }
 
         function rigidbodyEditApplication(applicationID) {
-            console.log('编辑应用'+applicationID)
+            alert('not support yet!')
         }
 
         function rigidbodyDeleteApplication(applicationID) {
             console.log('删除应用'+applicationID)
+
+            networkPost('/admin/application/delete', {
+                'applicationID' : applicationID
+            }).then((response) => {
+                if(200 === response.data.code){
+                    document.writeln('删除成功')
+                    setTimeout(() => {
+                        location.reload()
+                    }, 500)
+                } else {
+                    alert('删除应用失败，' + response.data.message)
+                }
+            }).catch((error) => {
+                alert('删除应用失败')
+            })
         }
 
     </script>

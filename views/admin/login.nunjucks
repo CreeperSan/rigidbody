@@ -43,7 +43,7 @@
                     document.writeln('欢迎你，' + account)
                     setTimeout(function () {
                         document.location = '/admin/index'
-                    }, 2000)
+                    }, 500)
                 } else {
                     alert(resp.data.message)
                 }

@@ -1,0 +1,18 @@
+{% extends 'views/base/base.nunjucks' %}
+
+{% block title %}新增版本{% endblock %}
+
+{% block head %}
+    <script src="/lib/axios/axios.0.21.1.js"></script>
+    <script src="/js/rigidbody-request.0.1.0.js"></script>
+{% endblock %}
+
+{% block body %}
+    <div style="display: flex;flex-direction: column;">
+        <h1 style="">新增版本</h1>
+    </div>
+
+
+{% endblock %}
+
+
