@@ -6,6 +6,7 @@ const database = new sqlite.Database('./data/data.sqlite')
 // TODO : 参数合法性校验
 
 
+/*****************  这部分是统一数据库回传到上一个调用处的操作结果格式  ********************/
 
 /**
  * 数据库操作的返回结果统一数据结构
@@ -49,12 +50,41 @@ function _createFailResult(message){
     return _createResult(false, message, null)
 }
 
+
+/*****************  这部分是统一数据库回传到上一个调用处 Model 的数据格式  ********************/
+
+function _databaseObjectFormatAccount(accountRawDatabase) {
+    return {
+        'accountID' : accountRawDatabase.account_id,
+        'username' : accountRawDatabase.username,
+        'email' : accountRawDatabase.email,
+    }
+}
+
+function _databaseObjectFormatApplication(applicationRawDatabase){
+    return {
+        'applicationID' : applicationRawDatabase.application_id,
+        'accountID' : applicationRawDatabase.account_id,
+        'name' : applicationRawDatabase.name,
+        'status' : applicationRawDatabase.status,
+    }
+}
+
+function _databaseObjectFormatVersion(versionRawDatabase){
+    return JSON.parse(JSON.stringify({
+        'versionID' : versionRawDatabase.version_id,
+        'applicationID' : versionRawDatabase.application_id,
+        'description' : versionRawDatabase.description,
+        'versionCode' : versionRawDatabase.version_code,
+        'versionName' : versionRawDatabase.version_name,
+        'publishTime' : versionRawDatabase.publish_time,
+        'url' : versionRawDatabase.url,
+    }))
+}
+
+/*****************  对外公开的方法  ********************/
+
 module.exports = {
-
-
-
-
-
 
     /**
      * 初始话数据库表
@@ -78,11 +108,11 @@ module.exports = {
      */
     initTable : function () {
         // 账号表
-        database.run('create table if not exists Account(_id integer primary key autoincrement not null, account text not null unique, password text not null, mail text not null)')
+        database.run('create table if not exists Account(account_id integer primary key autoincrement not null, username text not null unique, password text not null, email text not null)')
         // 应用表
-        database.run('create table if not exists Application(_id integer primary key autoincrement not null, user_id integer not null , name text not null , status integer not null,  fields text not null, foreign key (user_id) references Account(_id) on delete cascade on update cascade)')
+        database.run('create table if not exists Application(application_id integer primary key autoincrement not null, account_id integer not null , name text not null , status integer not null,  fields text not null, foreign key (account_id) references Account(account_id) on delete cascade on update cascade)')
         // 应用信息表
-        database.run('create table if not exists Version(_id integer primary key autoincrement not null, application_id integer not null, description text, version_code integer not null, version_name text, publish_time integer, url text, infos text not null, foreign key (application_id) references Application(_id) on delete cascade on update cascade)')
+        database.run('create table if not exists Version(version_id integer primary key autoincrement not null, application_id integer not null, description text, version_code integer not null, version_name text, publish_time integer, url text, infos text not null, foreign key (application_id) references Application(application_id) on delete cascade on update cascade)')
     },
 
 
@@ -94,24 +124,20 @@ module.exports = {
     accountVerify : function(account, password){
         return new Promise(function (resolve, reject) {
             if (!account){
-                reject(_createFailResult('账号不能为空'))
+                resolve(_createFailResult('账号不能为空'))
             } else if(!password){
-                reject(_createFailResult('密码不能为空'))
+                resolve(_createFailResult('密码不能为空'))
             } else {
-                let sql = sqlUtils.formatString('select * from Account where account = "?" and password = "?" limit 1', [account, password])
+                let sql = sqlUtils.formatString('select * from Account where username = "?" and password = "?" limit 1', [account, password])
                 database.all(sql, function (err, result) {
                     if(err){
-                        reject(_createFailResult('服务器内部错误'))
+                        resolve(_createFailResult('服务器内部错误'))
                     } else {
                         if(result.length === null || result.length === undefined || result.length <= 0 ){
                             resolve(_createFailResult('账号或密码错误'))
                         } else {
                             let accountItem = result[0]
-                            resolve(_createSuccessResult({
-                                'id' : accountItem._id,
-                                'account' : accountItem.account,
-                                'mail' : accountItem.mail,
-                            }))
+                            resolve(_createSuccessResult(_databaseObjectFormatAccount(accountItem)))
                         }
                     }
                 })
@@ -125,12 +151,14 @@ module.exports = {
      */
     accountGetByAccount : function(account){
         return new Promise(function (resolve, reject) {
-            let sql = sqlUtils.formatString('select * from Account where account = ? limit 1', [account])
+            let sql = sqlUtils.formatString('select * from Account where username = ? limit 1', [account])
             database.all(sql, function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    resolve(_createFailResult('服务器内部错误'))
+                } else if(result.length >= 1){
+                    resolve(_createSuccessResult(_databaseObjectFormatAccount(result[0])))
                 } else {
-                    resolve(_createSuccessResult(result))
+                    resolve(_createFailResult('未找到对应用户'))
                 }
             })
         })
@@ -142,12 +170,14 @@ module.exports = {
      */
     accountGetByID : function(accountID){
         return new Promise(function (resolve, reject) {
-            let sql = sqlUtils.formatString('select * from Account where _id = ? limit 1', [accountID])
+            let sql = sqlUtils.formatString('select * from Account where account_id = ? limit 1', [accountID])
             database.all(sql, function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    resolve(_createFailResult('服务器内部错误'))
+                } else if(result.length >= 1){
+                    resolve(_createSuccessResult(_databaseObjectFormatAccount(result[0])))
                 } else {
-                    resolve(_createSuccessResult(result))
+                    resolve(_createFailResult('未找到对应用户'))
                 }
             })
         })
@@ -155,17 +185,17 @@ module.exports = {
 
     /**
      * 注册
-     * @param account
+     * @param username
      * @param password
-     * @param mail
+     * @param email
      */
-    accountCreate : function (account, password, mail) {
+    accountCreate : function (username, password, email) {
         return new Promise(function (resolve, reject) {
-            let sql = 'insert into Account(account, password, mail) values (?, ?, ?)'
+            let sql = 'insert into Account(username, password, email) values (?, ?, ?)'
             let sqlitePreparement = database.prepare(sql)
-            sqlitePreparement.run(account, password, mail, function (err, result) {
+            sqlitePreparement.run(username, password, email, function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    resolve(_createFailResult('服务器内部错误'))
                 } else {
                     resolve(_createSuccessResult())
                 }
@@ -181,20 +211,14 @@ module.exports = {
      */
     applicationGetList : function (accountID, size, page) {
         return new Promise(function (resolve, reject) {
-            let sql = sqlUtils.formatString('select * from Application where user_id = ? limit ? offset ?', [accountID, size, page*size])
+            let sql = sqlUtils.formatString('select * from Application where account_id = ? limit ? offset ?', [accountID, size, page*size])
             database.all(sql, function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    resolve(_createFailResult('服务器内部错误'))
                 } else {
                     let applicationResultList = []
                     for(let i=0; i<result.length; i++){
-                        let applicationResultItem = {}
-                        let applicationDatabaseItem = result[i]
-                        applicationResultItem.id = applicationDatabaseItem._id
-                        applicationResultItem.name = applicationDatabaseItem.name
-                        applicationResultItem.status = applicationDatabaseItem.status
-                        // TODO 自定义字段尚未支持
-                        applicationResultList.push(applicationResultItem)
+                        applicationResultList.push(_databaseObjectFormatApplication(result[i]))
                     }
                     resolve(_createSuccessResult(applicationResultList))
                 }
@@ -211,11 +235,11 @@ module.exports = {
      */
     applicationCreate : function (accountID, applicationName, status, fields) {
         return new Promise(function (resolve, reject) {
-            let sql = 'insert into Application(user_id, name, status ,fields) values (?, ?, ?, ?)'
+            let sql = 'insert into Application(account_id, name, status ,fields) values (?, ?, ?, ?)'
             let sqlitePreparement = database.prepare(sql)
             sqlitePreparement.run(accountID, applicationName, status, fields, function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    resolve(_createFailResult('服务器内部错误'))
                 } else {
                     resolve(_createSuccessResult())
                 }
@@ -230,10 +254,10 @@ module.exports = {
      */
     applicationDelete : function (accountID, applicationID) {
         return new Promise(function (resolve, reject) {
-            let sql = sqlUtils.formatString('delete from Application where user_id = ? and _id = ?', [accountID, applicationID])
+            let sql = sqlUtils.formatString('delete from Application where account_id = ? and application_id = ?', [accountID, applicationID])
             database.prepare(sql).run(function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    resolve(_createFailResult('服务器内部错误'))
                 } else {
                     resolve(_createSuccessResult())
                 }
@@ -246,14 +270,19 @@ module.exports = {
      * @param accountID
      * @param applicationID
      */
-    applicationIsExist : function (accountID, applicationID) {
+    applicationGetByID : function (accountID, applicationID) {
         return new Promise(function (resolve, reject) {
-            let sql = sqlUtils.formatString('select * from Application where _id = ? and user_id = ?', [applicationID, accountID])
+            let sql = sqlUtils.formatString('select * from Application where application_id = ? and account_id = ?', [applicationID, accountID])
             database.all(sql, function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    resolve(_createFailResult('服务器内部错误'))
                 } else {
-                    resolve(_createSuccessResult(result))
+                    if(result.length > 0){
+                        let applicationDatabaseItem = result[0]
+                        resolve(_createSuccessResult(_databaseObjectFormatApplication(applicationDatabaseItem)))
+                    } else {
+                        resolve(_createFailResult('应用不存在'))
+                    }
                 }
             })
         })
@@ -275,7 +304,7 @@ module.exports = {
             let databasePreparement = database.prepare(sql)
             databasePreparement.run(applicationID, description, versionCode, versionName, publishTime, url, infos, function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    resolve(_createFailResult('服务器内部错误'))
                 } else {
                     resolve(_createSuccessResult())
                 }
@@ -290,10 +319,10 @@ module.exports = {
      */
     versionDelete : function (applicationID, versionID) {
         return new Promise(function (resolve, reject) {
-            let sql = sqlUtils.formatString('delete from Version where _id = ? and application_id = ?', [versionID, applicationID])
+            let sql = sqlUtils.formatString('delete from Version where version_id = ? and application_id = ?', [versionID, applicationID])
             database.prepare(sql).run(function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    resolve(_createFailResult('服务器内部错误'))
                 } else {
                     resolve(_createSuccessResult())
                 }
@@ -307,12 +336,16 @@ module.exports = {
      */
     versionLatest : function (applicationID) {
         return new Promise(function (resolve, reject) {
-            let sql = sqlUtils.formatString('select * from Version where _id = ? limit 1 order by _id desc', [applicationID])
+            let sql = sqlUtils.formatString('select * from Version where version_id = ? order by version_id desc limit 1', [applicationID])
             database.all(sql, function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    console.log(err)
+                    resolve(_createFailResult('服务器内部错误'))
+                } else if(result.length > 0){
+                    let versionDatabaseItem = result[0]
+                    resolve(_createSuccessResult(_databaseObjectFormatVersion(versionDatabaseItem)))
                 } else {
-                    result(_createSuccessResult(result))
+                    resolve(_createFailResult('应用尚未添加版本'))
                 }
             })
         })
@@ -326,12 +359,17 @@ module.exports = {
      */
     versionList : function (applicationID, page , count) {
         return new Promise(function (resolve, reject) {
-            let sql = sqlUtils.formatString('select * from Version where _id = ? limit ? offset ? order by _id desc', [applicationID, count, count*page])
+            let sql = sqlUtils.formatString('select * from Version where application_id = ? order by version_id desc limit ? offset ?', [applicationID, count, count*page])
             database.all(sql, function (err, result) {
                 if(err){
-                    reject(_createFailResult('服务器内部错误'))
+                    resolve(_createFailResult('服务器内部错误'))
                 } else {
-                    result(_createSuccessResult(result))
+                    let databaseResultList = []
+                    for(let i=0; i<result.length; i++){
+                        let versionDatabaseItem = result[i]
+                        databaseResultList.push(_databaseObjectFormatVersion(versionDatabaseItem))
+                    }
+                    resolve(_createSuccessResult(databaseResultList))
                 }
             })
         })

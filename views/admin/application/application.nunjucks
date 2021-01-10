@@ -9,38 +9,54 @@
 
 {% block body %}
     <div style="display: flex;flex-direction: column;">
-        <h1>应用名称</h1>
+        <h1>{{ applicationName }}</h1>
+        <span style="color: gray">ID : {{ applicationID }}</span>
         <div style="display: flex;flex-direction: row;align-items: center;padding: 16px 0;background-color: lightgray;">
             <h3>已发布的版本列表</h3>
             <div style="flex: 1;"></div>
             <a href="javascript:rigidbodyAddVersion()">添加版本</a>
         </div>
 
+        {% for versionItem in versions %}
         <div style="display: flex;flex-direction: column;">
             <div style="display: flex;flex-direction: row;align-items: center">
-                <h4>v10.16.130.465561</h4>
-                <span style="color: gray;margin-left: 16px;"> (10264 ) </span>
+                <h4>{{ versionItem.versionName }}</h4>
+                <span style="color: gray;margin-left: 16px;"> ( {{ versionItem.versionCode }} ) </span>
                 <div style="flex: 1"></div>
-                <a style="color: red;" href="javascript:rigidbodyDeleteVersion('','')">删除版本</a>
+                <a style="color: red;" href="javascript:rigidbodyDeleteVersion({{ applicationID }}, {{ versionItem.versionID }})">删除版本</a>
             </div>
-            <span>发布于 2021-06-19 23:10:51</span>
-            <span>http://www.creepersan.com</span>
+            <span>{{ versionItem.publishTime }}</span>
+            <span>{{ versionItem.url }}</span>
             <div>
-                1. 新增评论功能<br>
-                2. 新增主题换肤<br>
-                3. 修复漏洞<br>
+                {{ versionItem.description }}
             </div>
             <div style="height: 1px;width: 100%;background-color: gray;margin: 16px 0;"></div>
         </div>
+        {% endfor %}
     </div>
 
     <script>
         function rigidbodyAddVersion() {
-            location.href = '/admin/application/version/add'
+            location.href = '/admin/application/version/add?applicationID={{ applicationID }}'
         }
 
         function rigidbodyDeleteVersion(applicationID, versionID) {
-
+            networkPost('/admin/application/version/delete', {
+                'applicationID' : applicationID,
+                'versionID' : versionID,
+            }).then((response) => {
+                console.log(response)
+                if(response.data.code === 200){
+                    document.writeln('版本删除成功')
+                    setTimeout(() => {
+                        location.reload()
+                    }, 500)
+                } else {
+                    alert(response.data.message)
+                }
+            }).catch((error) => {
+                alert('版本删除失败')
+            })
         }
 
     </script>

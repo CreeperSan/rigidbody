@@ -1,41 +1,37 @@
 const router = require('koa-router')()
 const RouteResponse = require('./router_response')
+const Database = require('./../database/database')
 
+/**
+ * 获取应用最新版本
+ */
 router.get('/latest', async (ctx, next) => {
-    let token = ctx.header['token']
-    if(token === null || token === undefined){
+    // 获取应用ID
+    let applicationID = ctx.request.query['applicationID']
+    if(!applicationID){
+        applicationID = ctx.header['applicationID']
+    }
+    if(!applicationID){
+        applicationID = ctx.data.applicationID
+    }
+    if(!applicationID){
         ctx.body = RouteResponse.fail('缺少应用ID')
+        return
+    }
+    // 查数据库
+    let databaseResult = await Database.versionLatest(applicationID)
+    if(databaseResult.isSuccess){
+        ctx.body = RouteResponse.success(databaseResult.data)
     } else {
-        ctx.body = RouteResponse.success({
-            'versionCode' : 10032,
-            'versionName' : 'alpha 20135'
-        })
+        ctx.body = RouteResponse.fail(databaseResult.message)
     }
 })
 
+/**
+ * 获取应用版本更新列表
+ */
 router.get('/list', async (ctx, next) => {
-    let token = ctx.header['token']
-    let page = ctx.query['page']
-    let size = ctx.query['size']
-    if(!(page instanceof Number)){
-        page = 1
-    }
-    if(!(size instanceof Number)){
-        size = 10
-    }
-    if(token === null || token === undefined){
-        ctx.body = RouteResponse.fail('缺少应用ID')
-    } else {
-        ctx.body = RouteResponse.success([
-            {
-                'versionCode' : 10031,
-                'versionName' : 'alpha 20134'
-            },{
-                'versionCode' : 10032,
-                'versionName' : 'alpha 20135'
-            },
-        ])
-    }
+    ctx.body = RouteResponse.fail('开发中')
 })
 
 module.exports = router

@@ -12,6 +12,84 @@
         <h1 style="">新增版本</h1>
     </div>
 
+    <label style="display: flex;flex-direction: row">
+        <span style="width: 80px;">应用名称</span>
+        <span>{{ applicationName }}</span>
+    </label>
+
+    <label style="display: flex;flex-direction: row">
+        <span style="width: 80px;">应用ID</span>
+        <span>{{ applicationID }}</span>
+    </label>
+
+    <label style="display: flex;flex-direction: row" for="form-version-code">
+        <span style="width: 80px;">版本号</span>
+        <input id="form-version-code" value="" style="width: 360px;"/>
+    </label>
+
+    <label style="display: flex;flex-direction: row" for="form-version-name">
+        <span style="width: 80px;">版本名称</span>
+        <input id="form-version-name" value="" style="width: 360px;"/>
+    </label>
+
+    <label style="display: flex;flex-direction: row" for="form-version-url">
+        <span style="width: 80px;">版本链接</span>
+        <input id="form-version-url" value="" style="width: 360px;"/>
+    </label>
+
+    <label style="display: flex;flex-direction: row" for="form-version-publish-time">
+        <span style="width: 80px;">发布时间</span>
+        <input id="form-version-publish-time" value="" style="width: 360px;"/>
+    </label>
+
+    <label style="display: flex;flex-direction: row" for="form-version-description">
+        <span style="width: 80px;">版本描述</span>
+        <textarea id="form-version-description" style="width: 360px;"></textarea>
+    </label>
+
+    <button onclick="onPublishClick()">发布</button>
+
+
+    <script>
+        function onPublishClick() {
+            let versionCode = document.getElementById('form-version-code').value
+            let versionName = document.getElementById('form-version-name').value
+            let versionUrl = document.getElementById('form-version-url').value
+            let versionDescription = document.getElementById('form-version-description').value
+            let versionPublishTime = document.getElementById('form-version-publish-time').value
+
+            if(!versionCode){
+                alert('版本号不能为空')
+                return
+            }
+
+            if(!versionName){
+                versionName = versionCode
+            }
+
+            if (!versionPublishTime){
+                versionPublishTime = new Date().getTime()
+            }
+
+            networkPost('/admin/application/version/add', {
+                'applicationID' : 1,
+                'code' : versionCode,
+                'name' : versionName,
+                'url' : versionUrl,
+                'description' : versionDescription,
+                'publishTime' : versionPublishTime,
+            }).then((response) => {
+                if(response.data.code !== 200 ){
+                    alert(response.data.message)
+                } else {
+                    alert('添加版本成功')
+                }
+                console.log(response)
+            }).catch((error) => {
+                alert('添加版本失败')
+            })
+        }
+    </script>
 
 {% endblock %}
 

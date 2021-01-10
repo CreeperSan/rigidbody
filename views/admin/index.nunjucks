@@ -27,11 +27,11 @@
         {% for application in applicationList%}
         <div style="display: flex;flex-direction: column;background-color: #eee;">
             <div style="width: 94%;display: flex;flex-direction: row;align-items: center;margin: 12px 3%;">
-                <a href="/admin/application?id={{ application.id }}" style="font-weight: bold;font-size: 20px;">{{ application.name }}</a>
-                <span style="margin-left: 16px;color: #999">（ id = {{ application.id }}）</span>
+                <a href="/admin/application?id={{ application.applicationID }}" style="font-weight: bold;font-size: 20px;">{{ application.name }}</a>
+                <span style="margin-left: 16px;color: #999">（ id = {{ application.applicationID }}）</span>
                 <div style="flex: 1;"></div>
-                <a style="color: red;margin-right: 16px;" href="javascript:rigidbodyDeleteApplication({{ application.id }})">删除</a>
-                <a href="javascript:rigidbodyEditApplication({{ application.id }})">编辑</a>
+                <a style="color: red;margin-right: 16px;" href="javascript:rigidbodyDeleteApplication({{ application.applicationID }})">删除</a>
+                <a href="javascript:rigidbodyEditApplication({{ application.applicationID }})">编辑</a>
             </div>
         </div>
         {% endfor %}
