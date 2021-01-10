@@ -4,7 +4,7 @@ module.exports = {
      * 服务器接口返回
      * @param code
      * @param message
-     * @param response
+     * @param data
      */
     response : function(code, message, data){
         if(code === null || code === undefined){

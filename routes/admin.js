@@ -23,7 +23,7 @@ router.get('/index', async (ctx, next) => {
     // 检查token是否合法
     let accountID = AccountAuth.getAccountIDByToken(token)
     if(accountID){ // token 可用
-        let databaseResult = await database.applicationGetList(accountID,100, 0)
+        let databaseResult = await database.applicationGetList(accountID,999, 0)
         if(databaseResult.isSuccess){
             await ctx.render('admin/index', {
                 accountName: 'Hello Koa 2!',
@@ -68,10 +68,19 @@ router.get('/application', async (ctx, next) => {
             return
         }
         let applicationInfo = databaseResult.data
+        // 获取其他参数
+        let page = ctx.request.query['page']
+        if(0 !== page && !page){
+            page = 0
+        }
+        let count = ctx.request.query['count']
+        if(!count){
+            count = 16
+        }
         // 获取版本信息
         let versions = []
         let errorMessage = ''
-        databaseResult = await database.versionList(applicationID, 0, 999)
+        databaseResult = await database.versionList(applicationID, page, count)
         if(databaseResult.isSuccess){
             for(let i=0; i<databaseResult.data.length; i++){
                 versions.push(databaseResult.data[i])
