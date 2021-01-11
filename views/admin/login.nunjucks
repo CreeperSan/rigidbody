@@ -12,12 +12,12 @@
         <!--  账号  -->
         <label style="display: flex;flex-direction: row" for="form-account">
             <span style="width: 80px;">账号</span>
-            <input id="form-account" value="admin" style="width: 360px;"/>
+            <input id="form-account" value="" style="width: 360px;"/>
         </label>
         <!--  密码  -->
         <label style="display: flex;flex-direction: row" for="form-password">
             <span style="width: 80px;">密码</span>
-            <input id="form-password" value="123456" style="width: 360px;"/>
+            <input id="form-password" value="" style="width: 360px;"/>
         </label>
         <!--  登录按钮  -->
         <button id="form-login" onclick="onLoginClick()">登录</button>

@@ -1,5 +1,8 @@
 const sqlite = require('sqlite3').verbose()
 const sqlUtils = require('./sql_utils')
+const passwordEncrypt = require('crypto')
+const file = require('fs')
+const md5 = require('md5-node')
 
 const database = new sqlite.Database('./data/data.sqlite')
 
@@ -64,6 +67,31 @@ function _createSuccessResult(data){
 function _createFailResult(message){
     return _createResult(false, message, null)
 }
+
+
+/*****************  数据库密码加密  ********************/
+let _encryptPasswordKey = null
+function _encryptPassword(password) {
+    const encryptFilePath = process.cwd()+'/data/db_pw_key'
+    if(_encryptPasswordKey == null){
+        if(!file.existsSync(encryptFilePath)){ // 文件不存在
+            // 生成32位长度的随机Key
+            let randomKey = ''
+            for (let i=0; i<32; i++){
+                randomKey += ('0123456789abcdef'[parseInt(Math.random()*16)]).toString()
+            }
+            _encryptPasswordKey = randomKey
+            // 记录下来
+            file.writeFileSync(encryptFilePath, _encryptPasswordKey)
+        } else { // 文件存在
+            // 读取原有的key
+            _encryptPasswordKey = file.readFileSync(encryptFilePath, 'utf8')
+        }
+    }
+    // 加密
+    return md5(password, _encryptPasswordKey)
+}
+
 
 
 /*****************  这部分是统一数据库回传到上一个调用处 Model 的数据格式  ********************/
@@ -152,6 +180,7 @@ module.exports = {
                 if(password.length > MAX_LENGTH_PASSWORD){
                     password = password.substring(0, MAX_LENGTH_PASSWORD)
                 }
+                password = _encryptPassword(password)
                 // 数据库操作
                 let sql = sqlUtils.formatString('select * from Account where username = "?" and password = "?" limit 1', [account, password])
                 database.all(sql, function (err, result) {
@@ -239,6 +268,7 @@ module.exports = {
             if(password.length > MAX_LENGTH_PASSWORD){
                 password = password.substring(0, MAX_LENGTH_PASSWORD)
             }
+            password = _encryptPassword(password)
             email = email.toString()
             if(email.length > MAX_LENGTH_EMAIL){
                 resolve(_createFailResult('邮箱长度过长'))

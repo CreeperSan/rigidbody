@@ -26,12 +26,12 @@ router.get('/index', async (ctx, next) => {
         let databaseResult = await database.applicationGetList(accountID,999, 0)
         if(databaseResult.isSuccess){
             await ctx.render('admin/index', {
-                accountName: 'Hello Koa 2!',
+                accountName: '普通用户',
                 applicationList : databaseResult.data,
             })
         } else {
             await ctx.render('admin/index', {
-                accountName: 'Hello Koa 2!',
+                accountName: '普通用户',
                 applicationList : []
             })
         }

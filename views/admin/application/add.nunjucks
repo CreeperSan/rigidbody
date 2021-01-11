@@ -13,7 +13,7 @@
         <!-- 应用名称 -->
         <label style="display: flex;flex-direction: row" for="form-application-name">
             <span style="width: 80px;">应用名称</span>
-            <input id="form-application-name" value="admin" style="width: 360px;"/>
+            <input id="form-application-name" value="" style="width: 360px;"/>
         </label>
 
         <!-- 应用状态 -->
@@ -21,7 +21,7 @@
             <span style="width: 80px;">应用状态</span>
             <input id="form-application-status-alpha" type="radio" name="form-application-status"/><label for="form-application-status-alpha">内测</label>
             <input id="form-application-status-beta" type="radio" name="form-application-status"/><label for="form-application-status-beta">公测</label>
-            <input id="form-application-status-release" type="radio" name="form-application-status"/><label for="form-application-status-release">正式</label>
+            <input id="form-application-status-release" type="radio" name="form-application-status" checked/><label for="form-application-status-release">正式</label>
             <input id="form-application-status-archive" type="radio" name="form-application-status"/><label for="form-application-status-archive">归档</label>
             <input id="form-application-status-deprecated" type="radio" name="form-application-status"/><label for="form-application-status-deprecated">不再维护</label>
         </label>
