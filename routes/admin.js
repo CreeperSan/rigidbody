@@ -197,6 +197,7 @@ router.post('/login', async (ctx, next) => {
         let databaseID = result.data.accountID
         let accountAuthToken = AccountAuth.addToken(databaseID)
         if(accountAuthToken){ // token 添加成功
+            ctx.cookies.set('token', accountAuthToken)
             ctx.body = RouterResponse.success({
                 'account' : databaseAccount,
                 'mail' : databaseMail,
