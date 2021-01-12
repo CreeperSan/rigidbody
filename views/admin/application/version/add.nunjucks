@@ -1,53 +1,91 @@
-{% extends 'views/base/base.nunjucks' %}
+{% extends 'views/base/base_admin.nunjucks' %}
 
 {% block title %}新增版本{% endblock %}
 
-{% block head %}
-    <script src="/lib/axios/axios.0.21.1.js"></script>
-    <script src="/js/rigidbody-request.0.1.0.js"></script>
+{% block base_admin_head %}
+    <style>
+        .form-add-title{
+            display: flex;
+            flex-direction: column;
+        }
+        .form-add-title-text{
+            font-weight: 300;
+            width: 94%;
+            padding: 0 3%;
+        }
+        .form-add-label{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            width: 94%;
+            padding: 16px 3%;
+        }
+        .form-add-label-name{
+            width: 80px;
+        }
+        .form-add-label-disable-value{
+            color: gray;
+            cursor: no-drop;
+        }
+        .form-add-label-input-text{
+            padding: 8px 26px;
+            width: 360px;
+        }
+        .form-add-label-text-area{
+            padding: 8px 26px;
+            width: 360px;
+            min-height: 96px;
+        }
+        .form-add-button-commit{
+            width: 94%;
+            padding: 18px 0;
+            margin: 26px 3%;
+            font-size: 18px;
+        }
+    </style>
 {% endblock %}
 
-{% block body %}
-    <div style="display: flex;flex-direction: column;">
-        <h1 style="">新增版本</h1>
+{% block base_admin_body %}
+    <div class="form-add-title">
+        <h1 class="form-add-title-text">新增版本</h1>
     </div>
 
-    <label style="display: flex;flex-direction: row">
-        <span style="width: 80px;">应用名称</span>
-        <span>{{ applicationName }}</span>
+    <label class="form-add-label">
+        <span class="form-add-label-name">应用名称</span>
+        <span class="form-add-label-disable-value">{{ applicationName }} 应用名称</span>
     </label>
 
-    <label style="display: flex;flex-direction: row">
-        <span style="width: 80px;">应用ID</span>
-        <span>{{ applicationID }}</span>
+    <label class="form-add-label">
+        <span class="form-add-label-name">应用ID</span>
+        <span class="form-add-label-disable-value">{{ applicationID }}</span>
     </label>
 
-    <label style="display: flex;flex-direction: row" for="form-version-code">
-        <span style="width: 80px;">版本号</span>
-        <input id="form-version-code" value="" style="width: 360px;"/>
+    <label class="form-add-label" for="form-version-code">
+        <span class="form-add-label-name">版本号</span>
+        <input class="form-add-label-input-text" id="form-version-code"/>
     </label>
 
-    <label style="display: flex;flex-direction: row" for="form-version-name">
-        <span style="width: 80px;">版本名称</span>
-        <input id="form-version-name" value="" style="width: 360px;"/>
+    <label class="form-add-label" for="form-version-name">
+        <span class="form-add-label-name">版本名称</span>
+        <input class="form-add-label-input-text" id="form-version-name"/>
     </label>
 
-    <label style="display: flex;flex-direction: row" for="form-version-url">
-        <span style="width: 80px;">版本链接</span>
-        <input id="form-version-url" value="" style="width: 360px;"/>
+    <label class="form-add-label" for="form-version-url">
+        <span class="form-add-label-name">版本链接</span>
+        <input class="form-add-label-input-text" id="form-version-url"/>
     </label>
 
-    <label style="display: flex;flex-direction: row" for="form-version-publish-time">
-        <span style="width: 80px;">发布时间</span>
-        <input id="form-version-publish-time" value="" style="width: 360px;"/>
+    <label class="form-add-label" for="form-version-publish-time">
+        <span class="form-add-label-name">发布时间</span>
+        <input class="form-add-label-input-text" id="form-version-publish-time"/>
     </label>
 
-    <label style="display: flex;flex-direction: row" for="form-version-description">
-        <span style="width: 80px;">版本描述</span>
-        <textarea id="form-version-description" style="width: 360px;"></textarea>
+    <label class="form-add-label" for="form-version-description">
+        <span class="form-add-label-name">版本描述</span>
+        <textarea class="form-add-label-text-area" id="form-version-description"></textarea>
     </label>
 
-    <button onclick="onPublishClick()">发布</button>
+    <button class="form-add-button-commit" onclick="onPublishClick()">发布</button>
 
 
     <script>
@@ -72,7 +110,7 @@
             }
 
             networkPost('/admin/application/version/add', {
-                'applicationID' : 1,
+                'applicationID' : {{ applicationID }},
                 'code' : versionCode,
                 'name' : versionName,
                 'url' : versionUrl,

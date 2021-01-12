@@ -3,12 +3,30 @@
 {% block title %}登录信息已过期{% endblock %}
 
 {% block head %}
+    <style>
+        .root-div {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hint-title {
+            font-size: 20px;
+            font-weight: 300;
+        }
+        .hint-action {
+            color: dodgerblue;
+            cursor: pointer;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
-    <div style="display: flex;flex-direction: column;">
-        <h3>登录信息已过期</h3>
-        <a href="javascript:onLoginClick()">重新登录</a>
+    <div class="root-div">
+        <h3 class="hint-title">登录信息已过期</h3>
+        <span class="hint-action" onclick="onLoginClick()">重新登录</span>
     </div>
 
     <script>

@@ -1,33 +1,71 @@
-{% extends 'views/base/base.nunjucks' %}
+{% extends 'views/base/base_admin.nunjucks' %}
 
 {% block title %}新建应用{% endblock %}
 
-{% block head %}
-    <script src="/lib/axios/axios.0.21.1.js"></script>
-    <script src="/js/rigidbody-request.0.1.0.js"></script>
+{% block base_admin_head %}
+    <style>
+        .content-div{
+            display: flex;
+            flex-direction: column;
+            width: 94%;
+            padding: 0 3%;
+        }
+
+        .add-form-title{
+            font-size: 24px;
+            font-weight: 300;
+        }
+        .add-form-label{
+            margin: 16px 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .add-form-label-name{
+            width: 96px;
+        }
+        .add-form-label-input-text{
+            width: 360px;
+            padding: 8px 16px;
+        }
+        .add-form-label-input-cbx{
+
+        }
+        .add-form-label-input-cbx-name{
+            padding-right: 20px;
+        }
+        .add-form-label-button-commit{
+            margin-top: 16px;
+            padding: 20px 0;
+            font-size: 20px;
+        }
+    </style>
 {% endblock %}
 
-{% block body %}
+{% block base_admin_body %}
 
-    <div style="display: flex;flex-direction: column;">
+    <div class="content-div">
+
+        <h3 class="add-form-title">添加应用</h3>
+
         <!-- 应用名称 -->
-        <label style="display: flex;flex-direction: row" for="form-application-name">
-            <span style="width: 80px;">应用名称</span>
-            <input id="form-application-name" value="" style="width: 360px;"/>
+        <label class="add-form-label" for="form-application-name">
+            <span class="add-form-label-name">应用名称</span>
+            <input class="add-form-label-input-text" id="form-application-name"/>
         </label>
 
         <!-- 应用状态 -->
-        <label style="display: flex;flex-direction: row;margin: 16px 0;" for="form-application-status">
-            <span style="width: 80px;">应用状态</span>
-            <input id="form-application-status-alpha" type="radio" name="form-application-status"/><label for="form-application-status-alpha">内测</label>
-            <input id="form-application-status-beta" type="radio" name="form-application-status"/><label for="form-application-status-beta">公测</label>
-            <input id="form-application-status-release" type="radio" name="form-application-status" checked/><label for="form-application-status-release">正式</label>
-            <input id="form-application-status-archive" type="radio" name="form-application-status"/><label for="form-application-status-archive">归档</label>
-            <input id="form-application-status-deprecated" type="radio" name="form-application-status"/><label for="form-application-status-deprecated">不再维护</label>
+        <label class="add-form-label" for="form-application-status">
+            <span class="add-form-label-name">应用状态</span>
+            <input class="add-form-label-input-cbx" id="form-application-status-alpha" type="radio" name="form-application-status"/><label class="add-form-label-input-cbx-name" for="form-application-status-alpha">内测</label>
+            <input class="add-form-label-input-cbx" id="form-application-status-beta" type="radio" name="form-application-status"/><label class="add-form-label-input-cbx-name" for="form-application-status-beta">公测</label>
+            <input class="add-form-label-input-cbx" id="form-application-status-release" type="radio" name="form-application-status" checked/><label class="add-form-label-input-cbx-name" for="form-application-status-release">正式</label>
+            <input class="add-form-label-input-cbx" id="form-application-status-archive" type="radio" name="form-application-status"/><label class="add-form-label-input-cbx-name" for="form-application-status-archive">归档</label>
+            <input class="add-form-label-input-cbx" id="form-application-status-deprecated" type="radio" name="form-application-status"/><label class="add-form-label-input-cbx-name" for="form-application-status-deprecated">不再维护</label>
         </label>
 
         <!-- 添加按钮 -->
-        <button onclick="onAddClick()">添加</button>
+        <button class="add-form-label-button-commit" onclick="onAddClick()">添加</button>
     </div>
 
     <script>

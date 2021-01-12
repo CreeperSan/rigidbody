@@ -1,0 +1,33 @@
+.root-div{}
+
+.topbar{
+    flex-direction: row;
+    align-items: center;
+    background-color: #ddd;
+}
+.topbar-title{
+    margin-left: 0.5em;
+    font-weight: lighter;
+    cursor: pointer;
+}
+.topbar-space{
+    flex: 1;
+}
+.topbar-avatar{
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: 100%;
+    margin-right: 16px;
+    border: #666 solid 1px;
+}
+.topbar-username{
+    color: black;
+    margin-right: 16px;
+}
+.topbar-logout{
+    cursor: pointer;
+    margin-right: 16px;
+    color: gray;
+    font-size: 14px;
+}

@@ -1,0 +1,30 @@
+{% extends 'views/base/base.nunjucks' %}
+
+{% block title %}版本管理后台{% endblock %}
+
+{% block head %}
+    <script src="/lib/axios/axios.0.21.1.js"></script>
+    <script src="/js/rigidbody-request.0.1.0.js"></script>
+    <link rel="stylesheet" href="/css/base_admin.css"/>
+    {% block base_admin_head %}{% endblock %}
+{% endblock %}
+
+{% block body %}
+    <div class="root-div">
+        <!--  账号信息  -->
+        <div class="topbar">
+            <h1 class="topbar-title" onclick="rigidbodyGoHome()">版本升级管理后台</h1>
+            <div class="topbar-space"></div>
+            <img class="topbar-avatar" src="/img/default/avatar.png"/>
+            <span class="topbar-username"> {{ accountName }} </span>
+            <span class="topbar-logout" onclick="rigidbodyLogout()">退出登录</span>
+        </div>
+
+        {% block base_admin_body %}{% endblock %}
+
+    </div>
+
+    {% block base_admin_script %}{% endblock %}
+
+    <script src="/js/base_admin.js"></script>
+{% endblock %}

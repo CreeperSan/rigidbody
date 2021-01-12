@@ -1,16 +1,43 @@
-{% extends 'views/base/base.nunjucks' %}
+{% extends 'views/base/base_admin.nunjucks' %}
 
 {% block title %}应用详情{% endblock %}
 
-{% block head %}
-    <script src="/lib/axios/axios.0.21.1.js"></script>
-    <script src="/js/rigidbody-request.0.1.0.js"></script>
+{% block base_admin_head %}
+    <style>
+        .content-div{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 46px;
+        }
+        .content-hint-img{
+            width: 144px;
+            height: 144px;
+        }
+        .content-hint-text{
+            font-size: 18px;
+            margin: 26px 0;
+            color: black;
+        }
+        .content-hint-action{
+            font-size: 14px;
+            color: dodgerblue;
+            cursor: pointer;
+        }
+    </style>
 {% endblock %}
 
-{% block body %}
-    <div style="display: flex;flex-direction: column;">
-        <h1 style="color: red;">应用不存在</h1>
+{% block base_admin_body %}
+    <div class="content-div">
+        <img class="content-hint-img" src="/img/paimon/confuse.png">
+        <span class="content-hint-text">应用找不到了噢</span>
+        <span class="content-hint-action" onclick="onGoHomeClick()">回到首页</span>
     </div>
 
+    <script>
+        function onGoHomeClick() {
+            location.href = '/admin/index'
+        }
+    </script>
 
 {% endblock %}

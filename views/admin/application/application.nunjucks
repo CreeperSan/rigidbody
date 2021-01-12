@@ -1,36 +1,127 @@
-{% extends 'views/base/base.nunjucks' %}
+{% extends 'views/base/base_admin.nunjucks' %}
 
 {% block title %}应用版本信息{% endblock %}
 
-{% block head %}
-    <script src="/lib/axios/axios.0.21.1.js"></script>
-    <script src="/js/rigidbody-request.0.1.0.js"></script>
+{% block base_admin_head %}
+    <style>
+        .content-div{
+            display: flex;
+            flex-direction: column;
+        }
+
+        .version-app-name{
+            width: 94%;
+            padding: 0 3%;
+            font-weight: 300;
+        }
+        .version-app-id{
+            width: 94%;
+            padding: 0 3%;
+            color: gray;
+        }
+
+        .version-list-toolbar{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-top: 16px;
+            padding: 16px 3%;
+            width: 94%;
+            border: #999999 solid;
+            border-width: 1px 0;
+        }
+        .version-list-toolbar-title{
+            font-weight: normal;
+        }
+        .version-list-toolbar-space{
+            flex: 1;
+        }
+        .version-list-toolbar-button-add{
+            cursor: pointer;
+            color: cornflowerblue;
+        }
+
+        .version-item{
+            display: flex;
+            flex-direction: column;
+        }
+        .version-item-content{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            width: 94%;
+            padding: 0 3%;
+        }
+        .version-item-content-name{
+            color: black;
+            font-size: 22px;
+            padding: 8px 0;
+            font-weight: bold;
+        }
+        .version-item-content-code{
+            color: gray;
+            margin-left: 16px;
+            font-size: 14px;
+        }
+        .version-item-content-space{
+            flex: 1;
+        }
+        .version-item-content-publish-time{
+            width: 94%;
+            padding: 0 3%;
+            margin-top: 6px ;
+            color: gray;
+            font-size: 12px;
+        }
+        .version-item-content-url{
+            width: 94%;
+            padding: 0 3%;
+            font-size: 12px;
+            margin: 4px 0;
+            color: dodgerblue;
+            cursor: pointer;
+        }
+        .version-item-content-description{
+            width: 94%;
+            padding: 0 3%;
+            color: gray;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .version-item-content-delete{
+            color: red;
+        }
+        .version-item-divider{
+            height: 1px;
+            width: 100%;
+            background-color: gray;
+            margin: 16px 0;
+        }
+    </style>
 {% endblock %}
 
-{% block body %}
-    <div style="display: flex;flex-direction: column;">
-        <h1>{{ applicationName }}</h1>
-        <span style="color: gray">ID : {{ applicationID }}</span>
-        <div style="display: flex;flex-direction: row;align-items: center;padding: 16px 0;background-color: lightgray;">
-            <h3>已发布的版本列表</h3>
-            <div style="flex: 1;"></div>
-            <a href="javascript:rigidbodyAddVersion()">添加版本</a>
+{% block base_admin_body %}
+    <div class="content-div">
+        <h1 class="version-app-name">{{ applicationName }}</h1>
+        <span class="version-app-id">ID : {{ applicationID }}</span>
+        <div class="version-list-toolbar">
+            <h3 class="version-list-toolbar-title">已发布的版本列表</h3>
+            <div class="version-list-toolbar-space"></div>
+            <span class="version-list-toolbar-button-add" onclick="rigidbodyAddVersion()">添加版本</span>
         </div>
 
         {% for versionItem in versions %}
-        <div style="display: flex;flex-direction: column;">
-            <div style="display: flex;flex-direction: row;align-items: center">
-                <h4>{{ versionItem.versionName }}</h4>
-                <span style="color: gray;margin-left: 16px;"> ( {{ versionItem.versionCode }} ) </span>
-                <div style="flex: 1"></div>
-                <a style="color: red;" href="javascript:rigidbodyDeleteVersion({{ applicationID }}, {{ versionItem.versionID }})">删除版本</a>
+        <div class="version-item" >
+            <div class="version-item-content">
+                <span class="version-item-content-name">{{ versionItem.versionName }}</span>
+                <span class="version-item-content-code"> ( {{ versionItem.versionCode }} ) </span>
+                <div class="version-item-content-space"></div>
+                <a class="version-item-content-delete" href="javascript:rigidbodyDeleteVersion({{ applicationID }}, {{ versionItem.versionID }})">删除版本</a>
             </div>
-            <span>{{ versionItem.publishTime }}</span>
-            <span>{{ versionItem.url }}</span>
-            <div>
-                {{ versionItem.description }}
-            </div>
-            <div style="height: 1px;width: 100%;background-color: gray;margin: 16px 0;"></div>
+            <span class="version-item-content-publish-time">{{ versionItem.publishTime }}</span>
+            <span class="version-item-content-url">{{ versionItem.url }}</span>
+            <div class="version-item-content-description">{{ versionItem.description }}</div>
+            <div class="version-item-divider"></div>
         </div>
         {% endfor %}
     </div>
@@ -59,6 +150,40 @@
             })
         }
 
+        // 统一处理超链接中的换行符
+        let descriptionElementList = document.getElementsByClassName('version-item-content-description')
+        for(let i=0; i<descriptionElementList.length; i++){
+            let element = descriptionElementList[i]
+            element.innerHTML = element.innerHTML.replaceAll('\n', '<br>')
+        }
+        // 统一处理创建时间
+        function dateFormat(fmt, date) {
+            let ret;
+            const opt = {
+                "Y+": date.getFullYear().toString(),        // 年
+                "m+": (date.getMonth() + 1).toString(),     // 月
+                "d+": date.getDate().toString(),            // 日
+                "H+": date.getHours().toString(),           // 时
+                "M+": date.getMinutes().toString(),         // 分
+                "S+": date.getSeconds().toString()          // 秒
+                // 有其他格式化字符需求可以继续添加，必须转化成字符串
+            };
+            for (let k in opt) {
+                ret = new RegExp("(" + k + ")").exec(fmt);
+                if (ret) {
+                    fmt = fmt.replace(ret[1], (ret[1].length === 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+                }
+            }
+            return fmt;
+        }
+        let publishTimeElementList = document.getElementsByClassName('version-item-content-publish-time')
+        for(let i=0; i<publishTimeElementList.length; i++){
+            let element = publishTimeElementList[i]
+            let tmpPublishTime = element.innerText
+            let tmpPublishTimeDate = new Date()
+            tmpPublishTimeDate.setTime(parseInt(tmpPublishTime))
+            element.innerText = dateFormat('发布于 YYYY年mm月dd日 HH时MM分SS秒', tmpPublishTimeDate)
+        }
     </script>
 
 

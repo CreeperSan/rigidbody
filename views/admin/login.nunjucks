@@ -5,25 +5,89 @@
 {% block head %}
     <script src="/lib/axios/axios.0.21.1.js"></script>
     <script src="/js/rigidbody-request.0.1.0.js"></script>
+    <style>
+        .root-div{
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .root-div-form{
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-title-text{
+            font-size: 32px;
+            margin-top: 12px;
+            margin-bottom: 24px;
+        }
+        .form-input-label{
+            display: flex;
+            flex-direction: row;
+            margin: 8px 0;
+        }
+        .form-input-label-span{
+            width: 80px;
+            font-size: 18px;
+        }
+        .form-input-label-input{
+            width: 100%;
+            font-size: 18px;
+        }
+        .form-button-commit{
+            margin-top: 12px;
+            width: 100%;
+            padding: 12px 0;
+            font-size: 20px;
+        }
+        .form-hint-text{
+            margin-top: 26px;
+            font-size: 12px;
+            color: orangered;
+            display: none;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
-    <div style="display: flex;flex-direction: column;">
-        <!--  账号  -->
-        <label style="display: flex;flex-direction: row" for="form-account">
-            <span style="width: 80px;">账号</span>
-            <input id="form-account" value="" style="width: 360px;"/>
-        </label>
-        <!--  密码  -->
-        <label style="display: flex;flex-direction: row" for="form-password">
-            <span style="width: 80px;">密码</span>
-            <input id="form-password" value="" style="width: 360px;"/>
-        </label>
-        <!--  登录按钮  -->
-        <button id="form-login" onclick="onLoginClick()">登录</button>
+    <div class="root-div">
+        <div class="root-div-form">
+            <span class="form-title-text">Rigidbody</span>
+            <!--  账号  -->
+            <label class="form-input-label" for="form-account">
+                <span class="form-input-label-span">账号</span>
+                <input class="form-input-label-input" id="form-account"/>
+            </label>
+            <!--  密码  -->
+            <label class="form-input-label" for="form-password">
+                <span class="form-input-label-span">密码</span>
+                <input class="form-input-label-input" type="password" id="form-password"/>
+            </label>
+            <!--  登录按钮  -->
+            <button class="form-button-commit" id="form-login" onclick="onLoginClick()">登录</button>
+            <span class="form-hint-text" id="form-hint">提示文本</span>
+        </div>
+
     </div>
 
     <script>
+        function showFormHint(content, isWarming) {
+            let hintElement = document.getElementById('form-hint')
+            if(content !== null && content !== undefined){
+                hintElement.style.display = 'flex'
+                hintElement.innerText = content.toString()
+                hintElement.style.color = isWarming ? 'orangered' : 'gray'
+            } else {
+                hintElement.style.display = 'none'
+            }
+        }
+
+        function setFormButtonVisible(isVisible) {
+            let buttonElement = document.getElementById('form-login')
+            buttonElement.style.display = isVisible ? 'box' : 'none'
+        }
+
         function onLoginClick() {
             let accountElement = document.getElementById('form-account')
             let passwordElement = document.getElementById('form-password')
@@ -40,15 +104,18 @@
                     let account = resp.data.data.account
                     let token = resp.data.data.token
                     networkUpdateToken(token)
-                    document.writeln('欢迎你，' + account)
+                    showFormHint('欢迎你，'+account+'，正在前往主页', false)
+                    setFormButtonVisible(false)
                     setTimeout(function () {
                         document.location = '/admin/index'
                     }, 500)
                 } else {
-                    alert(resp.data.message)
+                    showFormHint(resp.data.message, true)
+                    setFormButtonVisible(true)
                 }
             }).catch(error => {
-                alert('登录请求失败')
+                showFormHint('登录请求失败', true)
+                setFormButtonVisible(true)
                 console.log(error)
             })
 

@@ -7,6 +7,10 @@ const Database = require('./../database/database')
  */
 router.get('/latest', async (ctx, next) => {
     // 获取应用ID
+    if(ctx.request.query === null || ctx.req.quote === undefined){
+        ctx.body = RouteResponse.fail('参数错误，缺少应用ID')
+        return
+    }
     let applicationID = ctx.request.query['applicationID']
     if(!applicationID){
         applicationID = ctx.header['applicationID']
@@ -15,7 +19,7 @@ router.get('/latest', async (ctx, next) => {
         applicationID = ctx.data.applicationID
     }
     if(!applicationID){
-        ctx.body = RouteResponse.fail('缺少应用ID')
+        ctx.body = RouteResponse.fail('参数错误，缺少应用ID')
         return
     }
     // 查数据库

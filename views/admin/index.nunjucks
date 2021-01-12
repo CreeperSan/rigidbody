@@ -1,62 +1,96 @@
-{% extends 'views/base/base.nunjucks' %}
+{% extends 'views/base/base_admin.nunjucks' %}
 
 {% block title %}版本管理后台{% endblock %}
 
-{% block head %}
-    <script src="/lib/axios/axios.0.21.1.js"></script>
-    <script src="/js/rigidbody-request.0.1.0.js"></script>
-{% endblock %}
-
-{% block body %}
-    <div style="display: flex;flex-direction: column;">
-        <!--  账号信息  -->
-        <div style="display: flex;flex-direction: row;align-items: center;background-color: #ddd;">
-            <h1>版本升级管理后台</h1>
-            <div style="flex: 1"></div>
-            <div style="width: 36px;height: 36px;background: #999;border-radius: 100%;margin-right: 16px;"></div>
-            <span> {{ accountName }} </span>
-            <a href="javascript:rigidbodyLogout()">[ 退出登录 ]</a>
-        </div>
-        <!--  应用列表  -->
-        <div style="display: flex;flex-direction: row;align-items: center">
-            <h3>应用列表</h3>
-            <div style="flex: 1"></div>
-            <a href="javascript:rigidbodyAddApplication()">新建应用</a>
-        </div>
-
-        {% for application in applicationList%}
-        <div style="display: flex;flex-direction: column;background-color: #eee;">
-            <div style="width: 94%;display: flex;flex-direction: row;align-items: center;margin: 12px 3%;">
-                <a href="/admin/application?id={{ application.applicationID }}" style="font-weight: bold;font-size: 20px;">{{ application.name }}</a>
-                <span style="margin-left: 16px;color: #999">（ id = {{ application.applicationID }}）</span>
-                <div style="flex: 1;"></div>
-                <a style="color: red;margin-right: 16px;" href="javascript:rigidbodyDeleteApplication({{ application.applicationID }})">删除</a>
-                <a href="javascript:rigidbodyEditApplication({{ application.applicationID }})">编辑</a>
-            </div>
-        </div>
-        {% endfor %}
-
-    </div>
-
-    <script>
-
-        /**
-         * 退出登录
-         */
-        function rigidbodyLogout() {
-            function onResult(value){
-                console.log(value)
-                networkUpdateToken(undefined)
-                document.writeln('已退出登录，感谢您的使用，3秒后将自动回到首页')
-                setTimeout(() => {
-                    location.href = '/admin'
-                }, 3000)
-            }
-
-            document.writeln('正在退出登录')
-            networkPost('/admin/logout').then(onResult).catch(onResult)
+{% block base_admin_head %}
+    <style>
+        .applist-toolbar{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            width: 94%;
+            padding: 0 3%;
+        }
+        .applist-toolbar-title{
+            font-weight: 300;
+        }
+        .applist-toolbar-space{
+            flex: 1;
+        }
+        .applist-toolbar-create{
+            cursor: pointer;
+            color: dodgerblue;
         }
 
+        .applist-item{
+            display: flex;
+            flex-direction: column;
+            background-color: #eee;
+        }
+        .applist-item-content{
+            width: 94%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 16px 3%;
+        }
+        .applist-item-content-application-icon{
+            width: 36px;
+            height: 36px;
+        }
+        .applist-item-content-application-name{
+            font-weight: bold;
+            font-size: 20px;
+            margin-left: 16px;
+        }
+        .applist-item-content-application-id{
+            margin-left: 16px;
+            color: #999;
+        }
+        .applist-item-content-space{
+            flex: 1;
+        }
+        .applist-item-content-delete{
+            color: red;
+            margin-right: 16px;
+            cursor: pointer;
+        }
+        .applist-item-content-edit{
+            color: darkslateblue;
+            cursor: pointer;
+        }
+        .applist-item-divider{
+            width: 100%;
+            height: 0.5px;
+            background-color: #CCC;
+        }
+    </style>
+{% endblock %}
+
+{% block base_admin_body %}
+
+    <!--  应用列表  -->
+    <div class="applist-toolbar">
+        <h1 class="applist-toolbar-title">应用列表</h1>
+        <div class="applist-toolbar-space"></div>
+        <span class="applist-toolbar-create" onclick="rigidbodyAddApplication()">新建应用</span>
+    </div>
+
+    {% for application in applicationList%}
+        <div class="applist-item">
+            <div class="applist-item-content">
+                <img class="applist-item-content-application-icon" src="/img/default/application.png">
+                <a class="applist-item-content-application-name" href="/admin/application?id={{ application.applicationID }}">{{ application.name }}</a>
+                <span class="applist-item-content-application-id">（ id = {{ application.applicationID }}）</span>
+                <div class="applist-item-content-space"></div>
+                <span class="applist-item-content-delete" onclick="rigidbodyDeleteApplication({{ application.applicationID }})">删除</span>
+                <span class="applist-item-content-edit" onclick="rigidbodyEditApplication({{ application.applicationID }})">编辑</span>
+            </div>
+            <div class="applist-item-divider"></div>
+        </div>
+    {% endfor %}
+
+    <script>
         function rigidbodyAddApplication() {
             location.href = '/admin/application/add'
         }
