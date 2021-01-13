@@ -31,6 +31,11 @@
             padding: 8px 26px;
             width: 360px;
         }
+        .form-add-label-time-picker{
+            padding: 8px 26px;
+            margin: 0 8px;
+            width: 144px;
+        }
         .form-add-label-text-area{
             padding: 8px 26px;
             width: 360px;
@@ -42,6 +47,12 @@
             margin: 26px 3%;
             font-size: 18px;
         }
+        .form-add-field-hint{
+            font-size: 12px;
+            color: #666;
+            margin: 0 3%;
+            padding-left: 80px;
+        }
     </style>
 {% endblock %}
 
@@ -52,7 +63,7 @@
 
     <label class="form-add-label">
         <span class="form-add-label-name">应用名称</span>
-        <span class="form-add-label-disable-value">{{ applicationName }} 应用名称</span>
+        <span class="form-add-label-disable-value">{{ applicationName }}</span>
     </label>
 
     <label class="form-add-label">
@@ -62,28 +73,34 @@
 
     <label class="form-add-label" for="form-version-code">
         <span class="form-add-label-name">版本号</span>
-        <input class="form-add-label-input-text" id="form-version-code"/>
+        <input class="form-add-label-input-text" id="form-version-code" type="number"/>
     </label>
+    <span class="form-add-field-hint">必填：只能为大于0的整数</span>
 
     <label class="form-add-label" for="form-version-name">
         <span class="form-add-label-name">版本名称</span>
         <input class="form-add-label-input-text" id="form-version-name"/>
     </label>
+    <span class="form-add-field-hint">不填则默认与版本号一致</span>
 
     <label class="form-add-label" for="form-version-url">
         <span class="form-add-label-name">版本链接</span>
         <input class="form-add-label-input-text" id="form-version-url"/>
     </label>
+    <span class="form-add-field-hint">应用获取链接</span>
 
-    <label class="form-add-label" for="form-version-publish-time">
+    <label class="form-add-label">
         <span class="form-add-label-name">发布时间</span>
-        <input class="form-add-label-input-text" id="form-version-publish-time"/>
+        <input class="form-add-label-time-picker" id="form-version-publish-time-date" type="date" style="margin-left: 0;" />
+        <input class="form-add-label-time-picker" id="form-version-publish-time-time" type="time"/>
     </label>
+    <span class="form-add-field-hint">默认为服务器接收到的时间</span>
 
     <label class="form-add-label" for="form-version-description">
         <span class="form-add-label-name">版本描述</span>
         <textarea class="form-add-label-text-area" id="form-version-description"></textarea>
     </label>
+    <span class="form-add-field-hint">更新内容介绍</span>
 
     <button class="form-add-button-commit" onclick="onPublishClick()">发布</button>
 
@@ -94,7 +111,8 @@
             let versionName = document.getElementById('form-version-name').value
             let versionUrl = document.getElementById('form-version-url').value
             let versionDescription = document.getElementById('form-version-description').value
-            let versionPublishTime = document.getElementById('form-version-publish-time').value
+            let versionPublishTimeDate = document.getElementById('form-version-publish-time-date').value
+            let versionPublishTimeTime = document.getElementById('form-version-publish-time-time').value
 
             if(!versionCode){
                 alert('版本号不能为空')
@@ -105,8 +123,18 @@
                 versionName = versionCode
             }
 
-            if (!versionPublishTime){
-                versionPublishTime = new Date().getTime()
+            // 版本号检查
+
+            // 时间检验
+            let versionPublishTime = new Date()
+            if (versionPublishTimeDate){
+                versionPublishTime.setFullYear(versionPublishTimeDate.substring(0, 4))
+                versionPublishTime.setMonth(parseInt(versionPublishTimeDate.substring(5, 7))-1)
+                versionPublishTime.setDate(versionPublishTimeDate.substring(8, 10))
+            }
+            if (versionPublishTimeTime){
+                versionPublishTime.setHours(versionPublishTimeTime.substring(0, 2))
+                versionPublishTime.setMinutes(versionPublishTimeTime.substring(3, 5))
             }
 
             networkPost('/admin/application/version/add', {
@@ -115,7 +143,7 @@
                 'name' : versionName,
                 'url' : versionUrl,
                 'description' : versionDescription,
-                'publishTime' : versionPublishTime,
+                'publishTime' : versionPublishTime.getTime(),
             }).then((response) => {
                 if(response.data.code !== 200 ){
                     alert(response.data.message)
@@ -126,6 +154,32 @@
             }).catch((error) => {
                 alert('添加版本失败')
             })
+        }
+
+        window.onload = function () {
+            let currentDate = new Date()
+            let currentYear = currentDate.getFullYear()
+            let currentMonth = (currentDate.getMonth()+1)
+            let currentDay = currentDate.getDate()
+            let currentHour = currentDate.getHours()
+            let currentMinute = currentDate.getMinutes()
+
+            function numberToString2(value){
+                try {
+                    value = parseInt(value)
+                } catch (e) {
+                    value = 0
+                    print(e)
+                }
+                let tmpValue = value.toString()
+                if(tmpValue.length <= 1){
+                    return '0'+tmpValue.toString()
+                }
+                return tmpValue
+            }
+
+            document.getElementById('form-version-publish-time-date').value = numberToString2(currentYear)+'-'+numberToString2(currentMonth)+'-'+numberToString2(currentDay)
+            document.getElementById('form-version-publish-time-time').value = numberToString2(currentHour)+':'+numberToString2(currentMinute)
         }
     </script>
 

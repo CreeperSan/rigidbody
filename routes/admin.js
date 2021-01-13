@@ -3,6 +3,7 @@ const RouterResponse = require('./router_response')
 const RouterUtils = require('./router_utils')
 const database = require('./../database/database')
 const AccountAuth = require('./../account/account_auth')
+const Handlers = require('./router_comm_handler')
 
 router.prefix('/admin')
 
@@ -16,143 +17,135 @@ router.get('/', async (ctx, next) => {
 /**
  * 访问管理页面
  */
-router.get('/index', async (ctx, next) => {
-    // 获取 Token
-    let cookieMap = RouterUtils.parseCookie(ctx.header.cookie)
-    let token = cookieMap['token']
-    // 检查token是否合法
-    let accountID = AccountAuth.getAccountIDByToken(token)
-    if(accountID){ // token 可用
-        let databaseResult = await database.applicationGetList(accountID,999, 0)
-        if(databaseResult.isSuccess){
-            await ctx.render('admin/index', {
-                accountName: '普通用户',
-                applicationList : databaseResult.data,
-            })
-        } else {
-            await ctx.render('admin/index', {
-                accountName: '普通用户',
-                applicationList : []
-            })
-        }
-    } else { // token 不可用
+router.get('/index', Handlers.accountAuth, async (ctx, next) => {
+    // 获取登录状态
+    if(!ctx.auth){
         await ctx.render('admin/login_expire')
+        return
+    }
+    // 读取应用列表
+    let accountID = ctx.auth.accountID
+    let username = ctx.auth.username
+    let databaseResult = await database.applicationGetList(accountID,999, 0)
+    if(databaseResult.isSuccess){
+        await ctx.render('admin/index', {
+            accountName: username,
+            applicationList : databaseResult.data,
+        })
+    } else {
+        await ctx.render('admin/index', {
+            accountName: username,
+            applicationList : []
+        })
     }
 })
 
 /**
  * 应用版本详情页面
  */
-router.get('/application', async (ctx, next) => {
-    // 获取 Token
-    let cookieMap = RouterUtils.parseCookie(ctx.header.cookie)
-    let token = cookieMap['token']
-    // 检查token是否合法
-    let accountID = AccountAuth.getAccountIDByToken(token)
-    if(accountID){ // token 可用
-        let applicationID = ctx.request.query.id
-        if(!applicationID){ // 没传参数
-            await ctx.render('admin/application/not_exist')
-            return
-        }
-        // 获取应用信息
-        let databaseResult;
-        try {
-            databaseResult = await database.applicationGetByID(accountID, applicationID)
-            if (!databaseResult.isSuccess) { // applicationID 错误
-                await ctx.render('admin/application/not_exist')
-                return
-            }
-        } catch (e) {
-            await ctx.render('admin/application/not_exist')
-            return
-        }
-        let applicationInfo = databaseResult.data
-        // 获取其他参数
-        let page = ctx.request.query['page']
-        if(0 !== page && !page){
-            page = 0
-        }
-        let count = ctx.request.query['count']
-        if(!count){
-            count = 16
-        }
-        // 获取版本信息
-        let versions = []
-        let errorMessage = ''
-        databaseResult = await database.versionList(applicationID, page, count)
-        if(databaseResult.isSuccess){
-            for(let i=0; i<databaseResult.data.length; i++){
-                versions.push(databaseResult.data[i])
-            }
-        } else {
-            errorMessage = databaseResult.message
-        }
-        // 渲染生成页面
-        await ctx.render('admin/application/application', {
-            'applicationName' : applicationInfo.name,
-            'applicationID' : applicationInfo.applicationID,
-            'applicationStatus' : applicationInfo.status,
-            'versions' : versions,
-            'errorMessage' : errorMessage,
-        })
-    } else { // token 不可用
+router.get('/application', Handlers.accountAuth, async (ctx, next) => {
+    if(!ctx.auth){
         await ctx.render('admin/login_expire')
+        return
     }
+    // 检查token是否合法
+    let accountID = ctx.auth.accountID
+    let username = ctx.auth.username
+    let applicationID = ctx.request.query.id
+    if(!applicationID){ // 没传参数
+        await ctx.render('admin/application/not_exist')
+        return
+    }
+    // 获取应用信息
+    let databaseResult;
+    try {
+        databaseResult = await database.applicationGetByID(accountID, applicationID)
+        if (!databaseResult.isSuccess) { // applicationID 错误
+            await ctx.render('admin/application/not_exist')
+            return
+        }
+    } catch (e) {
+        await ctx.render('admin/application/not_exist')
+        return
+    }
+    let applicationInfo = databaseResult.data
+    // 获取其他参数
+    let page = ctx.request.query['page']
+    if(0 !== page && !page){
+        page = 0
+    }
+    let count = ctx.request.query['count']
+    if(!count){
+        count = 16
+    }
+    // 获取版本信息
+    let versions = []
+    let errorMessage = ''
+    databaseResult = await database.versionList(applicationID, page, count)
+    if(databaseResult.isSuccess){
+        for(let i=0; i<databaseResult.data.length; i++){
+            versions.push(databaseResult.data[i])
+        }
+    } else {
+        errorMessage = databaseResult.message
+    }
+    // 渲染生成页面
+    await ctx.render('admin/application/application', {
+        'accountName': username,
+        'applicationName' : applicationInfo.name,
+        'applicationID' : applicationInfo.applicationID,
+        'applicationStatus' : applicationInfo.status,
+        'versions' : versions,
+        'errorMessage' : errorMessage,
+    })
 })
 
 /**
  * 新建应用界面
  */
-router.get('/application/add', async (ctx, next) => {
-    // 获取 Token
-    let cookieMap = RouterUtils.parseCookie(ctx.header.cookie)
-    let token = cookieMap['token']
-    // 检查token是否合法
-    let accountID = AccountAuth.getAccountIDByToken(token)
-    if(accountID){ // token 可用
-        await ctx.render('admin/application/add', {
-            accountName: 'Hello Koa 2!',
-        })
-    } else { // token 不可用
+router.get('/application/add', Handlers.accountAuth, async (ctx, next) => {
+    // 获取登录状态
+    if(!ctx.auth){
         await ctx.render('admin/login_expire')
+        return
     }
+    await ctx.render('admin/application/add', {
+        'accountName': ctx.auth.username,
+    })
 })
 
 /**
  * 新建应用版本
  */
-router.get('/application/version/add', async (ctx, next) => {
-    // 获取 Token
-    let cookieMap = RouterUtils.parseCookie(ctx.header.cookie)
-    let token = cookieMap['token']
-    // 检查token是否合法
-    let accountID = AccountAuth.getAccountIDByToken(token)
-    if(accountID){ // token 可用
-        // 获取应用是否存在
-        let applicationID = ctx.request.query.applicationID
-        if(!applicationID){ // 没传参数
-            await ctx.render('admin/application/not_exist')
-            return
-        }
-        // 获取应用信息
-        let databaseResult;
-        try {
-            databaseResult = await database.applicationGetByID(accountID, applicationID)
-        } catch (e) {
-            await ctx.render('admin/application/not_exist')
-            return
-        }
-        let applicationName = databaseResult.data.applicationName
-        let applicationStatus = databaseResult.data.applicationStatus
-        await ctx.render('admin/application/version/add', {
-            'applicationID': applicationID,
-            'applicationName' : applicationName,
-            'applicationStatus' : applicationStatus,
-        })
-    } else { // token 不可用
+router.get('/application/version/add', Handlers.accountAuth,async (ctx, next) => {
+    // 获取登录状态
+    if(!ctx.auth){
         await ctx.render('admin/login_expire')
+        return
     }
+    let accountID = ctx.auth.accountID
+    // 获取应用是否存在
+    let applicationID = ctx.request.query.applicationID
+    if(!applicationID){ // 没传参数
+        await ctx.render('admin/application/not_exist')
+        return
+    }
+    // 获取应用信息
+    let databaseResult;
+    try {
+        databaseResult = await database.applicationGetByID(accountID, applicationID)
+    } catch (e) {
+        await ctx.render('admin/application/not_exist')
+        return
+    }
+    let applicationName = databaseResult.data.name
+    let applicationStatus = databaseResult.data.status
+    await ctx.render('admin/application/version/add', {
+        'accountName': ctx.auth.username,
+        'applicationID': applicationID,
+        'applicationName' : applicationName,
+        'applicationStatus' : applicationStatus,
+    })
 })
 
 
@@ -289,9 +282,15 @@ router.post('/application/version/add', async (ctx, next) => {
     let versionDescription = ctx.request.body['description']
     let versionPublishTime = ctx.request.body['publishTime']
 
-    if(!versionName){ ctx.body = RouterResponse.fail('版本名称不能为空');return }
-    if(!versionCode){ ctx.body = RouterResponse.fail('版本号不能为空');return }
-    if(!versionPublishTime){ ctx.body = RouterResponse.fail('发布时间不能为空');return }
+    try {
+        versionCode = parseInt(versionCode)
+    } catch (e) {
+        ctx.body = RouterResponse.fail('版本号格式不正确')
+        return
+    }
+    if(!versionName || versionName.toString().length<=0){ ctx.body = RouterResponse.fail('版本名称不能为空');return }
+    if(!versionCode || versionCode.toString().length<=0){ ctx.body = RouterResponse.fail('版本号格式不正确，只能为整数');return }
+    if(!versionPublishTime || versionPublishTime.toString().length<=0){ ctx.body = RouterResponse.fail('发布时间不能为空');return }
     if(!versionUrl){ versionUrl = '' }
     if(!versionDescription){ versionDescription = '' }
 
