@@ -6,17 +6,16 @@ const Database = require('./../database/database')
  * 获取应用最新版本
  */
 router.get('/latest', async (ctx, next) => {
+    let applicationID = undefined
     // 获取应用ID
-    if(ctx.request.query === null || ctx.req.quote === undefined){
-        ctx.body = RouteResponse.fail('参数错误，缺少应用ID')
-        return
+    if(ctx.request.query !== null && ctx.request.query !== undefined){
+        applicationID = ctx.request.query['applicationID']
     }
-    let applicationID = ctx.request.query['applicationID']
-    if(!applicationID){
-        applicationID = ctx.header['applicationID']
+    if(!applicationID && ctx.request.headers!==null && ctx.request.headers!==undefined){
+        applicationID = ctx.request.headers['applicationID']
     }
-    if(!applicationID){
-        applicationID = ctx.data.applicationID
+    if(!applicationID && ctx.request.body!==null && ctx.request.body!==undefined){
+        applicationID = ctx.request.body['applicationID']
     }
     if(!applicationID){
         ctx.body = RouteResponse.fail('参数错误，缺少应用ID')

@@ -47,4 +47,6 @@ app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)
 });
 
+app.use(require('./routes/404'))
+
 module.exports = app

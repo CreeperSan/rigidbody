@@ -119,7 +119,7 @@
                 <a class="version-item-content-delete" href="javascript:rigidbodyDeleteVersion({{ applicationID }}, {{ versionItem.versionID }})">删除版本</a>
             </div>
             <span class="version-item-content-publish-time">{{ versionItem.publishTime }}</span>
-            <span class="version-item-content-url">{{ versionItem.url }}</span>
+            <span class="version-item-content-url" onclick="rigidbodyOnUrlClick('{{ versionItem.url }}')">{{ versionItem.url }}</span>
             <div class="version-item-content-description">{{ versionItem.description }}</div>
             <div class="version-item-divider"></div>
         </div>
@@ -129,6 +129,12 @@
     <script>
         function rigidbodyAddVersion() {
             location.href = '/admin/application/version/add?applicationID={{ applicationID }}'
+        }
+
+        function rigidbodyOnUrlClick(url) {
+            if(url){
+                location.href = url.toString()
+            }
         }
 
         function rigidbodyDeleteVersion(applicationID, versionID) {

@@ -42,6 +42,8 @@
             font-weight: bold;
             font-size: 20px;
             margin-left: 16px;
+            cursor: pointer;
+            color: dodgerblue;
         }
         .applist-item-content-application-id{
             margin-left: 16px;
@@ -80,17 +82,21 @@
         <div class="applist-item">
             <div class="applist-item-content">
                 <img class="applist-item-content-application-icon" src="/img/default/application.png">
-                <a class="applist-item-content-application-name" href="/admin/application?id={{ application.applicationID }}">{{ application.name }}</a>
+                <span class="applist-item-content-application-name" onclick="onApplicationTitleClick({{ application.applicationID }})">{{ application.name }}</span>
                 <span class="applist-item-content-application-id">（ id = {{ application.applicationID }}）</span>
                 <div class="applist-item-content-space"></div>
                 <span class="applist-item-content-delete" onclick="rigidbodyDeleteApplication({{ application.applicationID }})">删除</span>
-                <span class="applist-item-content-edit" onclick="rigidbodyEditApplication({{ application.applicationID }})">编辑</span>
+{#                <span class="applist-item-content-edit" onclick="rigidbodyEditApplication({{ application.applicationID }})">编辑</span>#}
             </div>
             <div class="applist-item-divider"></div>
         </div>
     {% endfor %}
 
     <script>
+        function onApplicationTitleClick(applicationID) {
+            location.href = '/admin/application?id='+applicationID.toString()
+        }
+
         function rigidbodyAddApplication() {
             location.href = '/admin/application/add'
         }

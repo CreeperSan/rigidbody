@@ -20,7 +20,10 @@
         .form-title-text{
             font-size: 32px;
             margin-top: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 12px;
+        }
+        .form-title-logo{
+            width: 72px;
         }
         .form-input-label{
             display: flex;
@@ -53,6 +56,7 @@
 {% block body %}
     <div class="root-div">
         <div class="root-div-form">
+            <img class="form-title-logo" src="/img/default/rigidbody.png">
             <span class="form-title-text">Rigidbody</span>
             <!--  账号  -->
             <label class="form-input-label" for="form-account">

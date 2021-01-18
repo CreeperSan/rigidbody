@@ -1,0 +1,54 @@
+{% extends 'views/base/base.nunjucks' %}
+
+{% block title %}您要找的页面走丢了{% endblock %}
+
+{% block head %}
+    <style>
+        .content-div{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 46px;
+        }
+        .content-hint-img{
+            width: 144px;
+            height: 144px;
+        }
+        .content-hint-text{
+            font-size: 18px;
+            margin: 26px 0;
+            color: black;
+        }
+        .content-hint-action{
+            font-size: 14px;
+            color: dodgerblue;
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="content-div">
+        <img class="content-hint-img" src="/img/paimon/confuse.png">
+        <span class="content-hint-text">页面找不到了噢</span>
+        <span class="content-hint-action" onclick="onGoBack()" id="content-hint-back" style="display: none;">回到上一页</span>
+        <span class="content-hint-action" onclick="onGoHomeClick()" style="margin-top: 16px;">回到首页</span>
+    </div>
+
+    <script>
+        function onGoHomeClick() {
+            location.href = '/admin/index'
+        }
+
+        function onGoBack() {
+            if(history.length >= 2){
+                history.back()
+            }
+        }
+
+        // 判断是否展示
+        if(history.length >= 2){
+            document.getElementById('content-hint-back').style.display = 'flex'
+        }
+    </script>
+{% endblock %}
