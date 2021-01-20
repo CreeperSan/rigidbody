@@ -68,6 +68,10 @@ function _createFailResult(message){
     return _createResult(false, message, null)
 }
 
+function _createFailResultWithData(message, data){
+    return _createResult(false, message, data)
+}
+
 
 /*****************  数据库密码加密  ********************/
 let _encryptPasswordKey = null
@@ -566,7 +570,7 @@ module.exports = {
                 return
             }
             // 数据库操作
-            let sql = sqlUtils.formatString('select * from Version where version_id = ? order by version_id desc limit 1', [applicationID])
+            let sql = sqlUtils.formatString('select * from Version where application_id = ? order by version_code desc limit 1', [applicationID])
             database.all(sql, function (err, result) {
                 if(err){
                     console.log(err)
@@ -575,7 +579,7 @@ module.exports = {
                     let versionDatabaseItem = result[0]
                     resolve(_createSuccessResult(_databaseObjectFormatVersion(versionDatabaseItem)))
                 } else {
-                    resolve(_createFailResult('应用尚未添加版本'))
+                    resolve(_createFailResultWithData('应用尚未添加版本', 'NO_VERSION'))
                 }
             })
         })

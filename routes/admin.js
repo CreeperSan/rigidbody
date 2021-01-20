@@ -272,8 +272,8 @@ router.post('/application/version/add', async (ctx, next) => {
         ctx.body = RouterResponse.fail(databaseResult.message)
         return
     }
-    let applicationName = databaseResult.applicationName
-    let applicationStatus = databaseResult.applicationStatus
+    let applicationName = databaseResult.data.applicationName
+    let applicationStatus = databaseResult.data.applicationStatus
 
     // 参数校验
     let versionName = ctx.request.body['name']
@@ -281,6 +281,22 @@ router.post('/application/version/add', async (ctx, next) => {
     let versionUrl = ctx.request.body['url']
     let versionDescription = ctx.request.body['description']
     let versionPublishTime = ctx.request.body['publishTime']
+
+    // 检查是否VersionCode合法
+    databaseResult = await database.versionLatest(applicationID)
+    if((databaseResult.isSuccess && databaseResult.data.versionCode) || databaseResult.data === 'NO_VERSION'){
+        let versionCodeLatestInDatabase = databaseResult.data.versionCode
+        if(!versionCodeLatestInDatabase){
+            versionCodeLatestInDatabase = -1
+        }
+        if(versionCode <= versionCodeLatestInDatabase){
+            ctx.body = RouterResponse.fail('版本号必须大于当前最新版本，当前最新版本为 ' + versionCodeLatestInDatabase)
+            return
+        }
+    } else {
+        ctx.body = RouterResponse.fail('获取最新版本号失败，' + databaseResult.message)
+        return
+    }
 
     try {
         versionCode = parseInt(versionCode)

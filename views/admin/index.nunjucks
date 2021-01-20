@@ -66,6 +66,26 @@
             height: 0.5px;
             background-color: #CCC;
         }
+        .applist-item-status{
+            border: black solid 1px;
+            border-radius: 4px;
+            padding: 1px 8px;
+            font-size: 12px;
+            margin-left: 16px;
+        }
+
+        .applist-empty-hint-text{
+            align-self: center;
+            color: #aaa;
+            margin: 26px 0;
+        }
+        .applist-empty-hint-image{
+            align-self: center;
+            color: #ccc;
+            margin: 46px 0 26px 0;
+            width: 64px;
+            height: 64px;
+        }
     </style>
 {% endblock %}
 
@@ -83,6 +103,22 @@
             <div class="applist-item-content">
                 <img class="applist-item-content-application-icon" src="/img/default/application.png">
                 <span class="applist-item-content-application-name" onclick="onApplicationTitleClick({{ application.applicationID }})">{{ application.name }}</span>
+
+                {% if application.status === 1 %}
+                    <span class="applist-item-status" style="border-color: lightskyblue;color: lightskyblue;">Alpha</span>
+                {% endif %}
+                {% if application.status === 2 %}
+                    <span class="applist-item-status" style="border-color: dodgerblue;color: dodgerblue;">Beta</span>
+                {% endif %}
+                {% if application.status === 3 %}
+                    <span class="applist-item-status" style="border-color: black;color: black;display: none;">Release</span>
+                {% endif %}
+                {% if application.status === 4 %}
+                    <span class="applist-item-status" style="border-color: #666;color: #666;">Archived</span>
+                {% endif %}
+                {% if application.status === 5 %}
+                    <span class="applist-item-status" style="border-color: #aaa;color: #aaa;">Abandoned</span>
+                {% endif %}
                 <span class="applist-item-content-application-id">（ id = {{ application.applicationID }}）</span>
                 <div class="applist-item-content-space"></div>
                 <span class="applist-item-content-delete" onclick="rigidbodyDeleteApplication({{ application.applicationID }})">删除</span>
@@ -91,6 +127,11 @@
             <div class="applist-item-divider"></div>
         </div>
     {% endfor %}
+
+    {% if applicationList.length <= 0 %}
+        <img class="applist-empty-hint-image" src="/img/default/empty.png"/>
+        <span class="applist-empty-hint-text">暂无应用版本，点击右上角 新建应用 创建一个应用吧</span>
+    {% endif %}
 
     <script>
         function onApplicationTitleClick(applicationID) {

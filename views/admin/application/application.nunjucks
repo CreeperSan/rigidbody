@@ -97,6 +97,18 @@
             background-color: gray;
             margin: 16px 0;
         }
+        .version-empty-hint-text{
+            align-self: center;
+            color: #aaa;
+            margin: 26px 0;
+        }
+        .version-empty-hint-image{
+            align-self: center;
+            color: #ccc;
+            margin: 46px 0 26px 0;
+            width: 64px;
+            height: 64px;
+        }
     </style>
 {% endblock %}
 
@@ -124,6 +136,11 @@
             <div class="version-item-divider"></div>
         </div>
         {% endfor %}
+
+        {% if versions.length <= 0 %}
+            <img class="version-empty-hint-image" src="/img/default/empty.png"/>
+            <span class="version-empty-hint-text">暂无应用版本，点击右上角 添加版本 添加一个版本吧</span>
+        {% endif %}
     </div>
 
     <script>
